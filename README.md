@@ -60,15 +60,15 @@ install.packages(c("deSolve", "tidyverse", "plyr", "ggplot2"))
 
 To run the numerical simulation:
 
-### 1. Open`numerical_simulation.R` in RStudio or a terminal.
-### 2. Set up the simulation parameters if needed.
-### 3. Run the script.
+ 1. Open`numerical_simulation.R` in RStudio or a terminal.
+ 2. Set up the simulation parameters if needed.
+ 3. Run the script.
 
 To generate the figures:
 
-### 1. Ensure `last_time.csv` is present in the working directory.
-### 2. Run `results_figures.R`.
-### 3. Figures will be saved as `.png` files in the working directory. Note that the file extension could be easily changed by replacing `.png` in the `ggsave()` function.
+ 1. Ensure `last_time.csv` is present in the working directory.
+ 2. Run `results_figures.R`.
+ 3. Figures will be saved as `.png` files in the working directory. Note that the file extension could be easily changed by replacing `.png` in the `ggsave()` function.
 
 ---
 
