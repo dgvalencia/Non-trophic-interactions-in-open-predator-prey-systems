@@ -15,12 +15,12 @@ library(stringr)         # String manipulation (if needed)
 PVmod_nti <- function(Time, State, Pars) {
   with(as.list(c(State, Pars)), {
     
-    # Prey population growth
-    dV <- j*Lv*(A - Wv*V) - q*V - ((lambda*V)/(1+lambda*h*V)) * P  # Prey growth and predation impact
+    # Prey population dynamics
+    dV <- h*Lv*(A - Wv*V) - q*V - ((alpha*V)/(1+alpha*lambda*V)) * P
     
-    # Predator population growth
+    # Predator population dynamics
     dP <- ((g + (g_prime - g) * (V^a / (V^a + Vor^a))) * Lp * (A - Wp * P)) - 
-      ((mmax - (mmax - mi) * (V^d / (V^d + Vos^d))) * P)  # Recruitment facilitation & refuge provision
+      ((mmax - (mmax - mi) * (V^d / (V^d + Vos^d))) * P)
     
     # Return rate of change as a list
     list(c(dV, dP))
@@ -36,7 +36,7 @@ PVmod_nti_vectorized <- function(Time, State, Pars) {
     P <- State[seq(1+length(State)/2, length(State))]
     
     # Prey growth and predator effect
-    dV <- j*Lv*(A - Wv*V) - q*V - ((lambda*V)/(1+lambda*h*V)) * P
+    dV <- h*Lv*(A - Wv*V) - q*V - ((alpha*V)/(1+alpha*lambda*V)) * P
     
     # Predator population change with NTI effects
     dP <- ((g + (g_prime - g) * (V^a / (V^a + Vor^a))) * Lp * (A - Wp * P)) - 
@@ -63,15 +63,16 @@ times <- seq(0, 1000, by = 0.1)
 
 # Generate all possible parameter combinations
 simulation_plan <- expand.grid(
-  Lv      = seq(0, 5000, by=50),      # Prey recruitment rate
+  Lv      = seq(0, 5000, by=50),      # Prey larval availability
   Lp      = c(seq(0, 40, by=2), 200, 2000),  # Predator larval availability
   mi      = c(0.005, 0.155, 0.255),   # Minimum predator mortality
   mmax    = c(0.005, 0.155, 0.255),   # Maximum predator mortality
-  g       = c(0.1),                   # Baseline predator recruitment rate
-  g_prime = c(0.1, 0.25, 0.5)          # Enhanced predator recruitment with facilitation
+  g       = c(0.1),                   # Baseline predator local affinity for recruitment
+  g_prime = c(0.1, 0.25, 0.5)         # Enhanced predator local affinity for recruitment with NTI
 )
 
 # Remove biologically unrealistic parameter combinations
+
 simulation_plan <- simulation_plan %>% 
   mutate(delta_g = g_prime - g, delta_m_positive = mmax - mi) %>%
   filter(delta_m_positive >= 0 & delta_g >= 0)
@@ -82,15 +83,15 @@ simulation_plan <- simulation_plan %>%
 
 # Default model parameters
 parameters <- list(
-  a = 2,         # Recruitment facilitation exponent
+  a = 2,         # Recruitment facilitation exponent 
   d = 10,        # Refuge provision exponent
-  j = 0.5,       # Prey intrinsic growth rate
+  h = 0.5,       # Prey local affinity for recruitment
   A = 1,         # Available space
-  Wv = 0.0001,   # Space occupied by prey
-  Wp = 0.022,    # Space occupied by predators
-  q = 0.005,     # Prey mortality rate
-  lambda = 0.923725, # Predation coefficient
-  h = 0.030306,  # Handling time
+  Wv = 0.0001,   # Space occupied by a prey individual
+  Wp = 0.022,    # Space occupied by a predator individual
+  q = 0.005,     # Prey "natural" mortality rate
+  alpha = 0.923725, # Predator attack rate
+  lambda = 0.030306,  # Predator handling time
   Vor = 3000,    # Threshold for recruitment facilitation
   Vos = 7000     # Threshold for refuge provision
 )
